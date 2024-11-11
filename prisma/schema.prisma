@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  usn           String    @unique
+  password      String
+  name          String
+  email         String    @unique
+  department    String
+  semester      Int
+  section       String
+  role          Role      @default(STUDENT)
+  attendance    Attendance[]
+  submissions   Submission[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Course {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  name          String
+  department    String
+  semester      Int
+  facultyId     String
+  faculty       Faculty   @relation(fields: [facultyId], references: [id])
+  materials     Material[]
+  attendance    Attendance[]
+  submissions   Submission[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Faculty {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  department    String
+  courses       Course[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Material {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  fileUrl       String
+  type          MaterialType
+  courseId      String
+  course        Course    @relation(fields: [courseId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Attendance {
+  id            String    @id @default(cuid())
+  date          DateTime
+  status        AttendanceStatus
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  courseId      String
+  course        Course    @relation(fields: [courseId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Submission {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  fileUrl       String?
+  grade         Float?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  courseId      String
+  course        Course    @relation(fields: [courseId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  FACULTY
+  STUDENT
+}
+
+enum MaterialType {
+  NOTES
+  ASSIGNMENT
+  SYLLABUS
+  QUESTION_PAPER
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  EXCUSED
+}
