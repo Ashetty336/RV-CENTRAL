@@ -10,7 +10,7 @@ export default function Home() {
           <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
             <div className="relative w-12 h-12">
               <Image
-                src="rv-logo.jpg"
+                src="/rv-logo.jpg"
                 alt="RV Central Logo"
                 fill
                 className="object-contain"

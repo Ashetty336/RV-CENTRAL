@@ -1,33 +1,19 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getUser } from '@/lib/auth';
+import { type NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    const user = await getUser(request);
-    
-    if (!user) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
-
-  // Protect API routes
-  if (request.nextUrl.pathname.startsWith('/api') && 
-      !request.nextUrl.pathname.startsWith('/api/auth')) {
-    const user = await getUser(request);
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-  }
-
-  return NextResponse.next();
+	return await updateSession(request);
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/api/:path*'],
+	matcher: [
+		/*
+		 * Match all request paths except for the ones starting with:
+		 * - _next/static (static files)
+		 * - _next/image (image optimization files)
+		 * - favicon.ico (favicon file)
+		 * Feel free to modify this pattern to include more paths.
+		 */
+		"/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+	],
 };
